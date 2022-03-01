@@ -21,7 +21,6 @@ public class RegistrationController {
 
 	@PostMapping("/registration")
 	public String addUser(User user, Map<String, Object> model) {
-		System.out.println(user.getEmail());
 		if (!userService.addUser(user)) {
 			model.put("message", "User exist!");
 			return "registration";

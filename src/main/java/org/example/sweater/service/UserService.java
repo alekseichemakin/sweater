@@ -8,8 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -33,4 +35,47 @@ public class UserService implements UserDetailsService {
 
 		return true;
 	}
+
+	public void saveUser( User user, String username, Map<String, String> form) {
+		user.setUsername(username);
+
+		Set<String> roles = Arrays.stream(Role.values())
+				.map(Role::name)
+				.collect(Collectors.toSet());
+
+		user.getRoles().clear();
+
+		for (String key : form.keySet()) {
+			if (roles.contains(key))
+				user.getRoles().add(Role.valueOf(key));
+		}
+		userRepository.save(user);
+	}
+
+	public String updateUser(User cUser, User aUser) {
+		StringBuilder message = new StringBuilder();
+
+		if (aUser.getUsername() == null || aUser.getUsername().isEmpty())
+			message.append("Error: Username is empty!\n");
+		else
+			cUser.setUsername(aUser.getUsername());
+
+		if (aUser.getEmail() == null || aUser.getEmail().isEmpty())
+			message.append("Error: Email is empty!\n");
+		else
+			cUser.setEmail(aUser.getEmail());
+
+		if (aUser.getPassword() == null || aUser.getPassword().isEmpty())
+			message.append("Error: Password is empty!\n");
+		else 
+			cUser.setPassword(aUser.getPassword());
+
+		userRepository.save(cUser);
+		return message.toString();
+	}
+
+	public List<User> findAll() {
+		return userRepository.findAll();
+	}
+
 }

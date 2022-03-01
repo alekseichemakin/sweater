@@ -50,7 +50,6 @@ public class MainController {
 	public String add(@AuthenticationPrincipal User user,
 	                  @RequestParam String text,
 	                  @RequestParam String tag,
-	                  Map<String, Object> model,
 	                  @RequestParam("file") MultipartFile file) throws IOException {
 		Message message = new Message(text, tag, user);
 

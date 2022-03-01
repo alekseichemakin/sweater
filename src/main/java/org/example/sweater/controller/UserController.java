@@ -3,8 +3,10 @@ package org.example.sweater.controller;
 import org.example.sweater.domain.Role;
 import org.example.sweater.domain.User;
 import org.example.sweater.repository.UserRepository;
+import org.example.sweater.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +18,18 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user")
-@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
 	@Autowired
-	UserRepository userRepository;
+	UserService userService;
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@GetMapping
 	public String userList(Model model) {
-		model.addAttribute("users", userRepository.findAll());
+		model.addAttribute("users", userService.findAll());
 		return "userList";
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@GetMapping("{user}")
 	public String userEditForm(@PathVariable User user, Model model) {
 		model.addAttribute("user", user);
@@ -34,24 +37,31 @@ public class UserController {
 		return "userEdit";
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping
 	public String userSave(@RequestParam("userId") User user,
 	                       @RequestParam String username,
 	                       @RequestParam Map<String, String> form)
 	{
-		user.setUsername(username);
-
-		Set<String> roles = Arrays.stream(Role.values())
-				.map(Role::name)
-				.collect(Collectors.toSet());
-
-		user.getRoles().clear();
-
-		for (String key : form.keySet()) {
-			if (roles.contains(key))
-				user.getRoles().add(Role.valueOf(key));
-		}
-		userRepository.save(user);
+		userService.saveUser(user, username, form);
 		return "redirect:/user";
+	}
+
+	@GetMapping("/profile")
+	public String userProfile(Model model, @AuthenticationPrincipal User user) {
+		model.addAttribute("user", user);
+
+		String s = (String) model.getAttribute("message");
+		if (s != null)
+			System.out.println(s);
+		return "/profile";
+	}
+
+	@PostMapping("/profile")
+	public String editProfile(@AuthenticationPrincipal User currentUser, User updateUser, Model model) {
+		String message = userService.updateUser(currentUser, updateUser);
+
+		model.addAttribute("message", message);
+		return "/profile";
 	}
 }

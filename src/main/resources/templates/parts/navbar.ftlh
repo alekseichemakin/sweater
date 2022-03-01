@@ -21,7 +21,7 @@
 				</li>
                 </#if>
 			</ul>
-			<div class="navbar-text mx-3">${name}</div>
+			<a href="/user/profile" class="navbar-text mx-3">${name}</a>
 			<@l.logout/>
 		</div>
 	</div>

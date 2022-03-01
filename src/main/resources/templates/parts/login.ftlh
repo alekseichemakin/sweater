@@ -9,7 +9,7 @@
 		<div class="row mb-3">
 			<label class="col-sm-2 col-form-label"> Password : </label>
 			<div class="col-sm-5">
-				<input type="password" name="password" class="form-control" placeholder="Passsword"/>
+				<input type="password" name="password" class="form-control" placeholder="Password"/>
 			</div>
 		</div>
         <#if isRegistrForm>
